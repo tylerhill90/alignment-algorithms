@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Tyler Hill - Local Alignment Algorithms</title>
+
+    <style>
+        .grid-container {
+            display: inline-grid;
+            grid-template-columns: repeat(var(--colNum), auto);
+            background-color: #ffffff;
+            padding: 30px;
+        }
+
+        .grid-item {
+            background-color: #ffffff;
+            padding: 0px;
+            font-size: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<header>
+
+</header>
+
+<body>
+    <form autocomplete="off" id="seqAlignForm">
+        <label for="seq1">First Sequence</label><br>
+        <input type="text" name="seq1" value="GGTTGACTA" required><br>
+        <label for="seq2">Second Sequence</label><br>
+        <input type="text" name="seq2" value="TGTTACGG" required><br>
+        <br>
+        <label>Algorithm</label><br>
+        <input type="radio" id="sw" name="algorithm" value="Smith-Waterman" checked>
+        <label for="sw">Smith-Waterman</label><br>
+        <input type="radio" id="nw" name="algorithm" value="Needleman-Wunsch">
+        <label for="nw">Needleman-Wunsch</label><br>
+        <br>
+        <label>Scoring Schema</label><br>
+        <label>Match</label><br>
+        <input type="range" id="scoring match" name="match" min="1" max="10" value="3" step="1"
+            onchange="this.nextElementSibling.value = this.value"><output>3</output><br>
+        <label>Mismatch</label><br>
+        <input type="range" id="scoring mismatch" name="mismatch" min="-10" max="-1" value="-3" step="1"
+            onchange="this.nextElementSibling.value = this.value"><output>-3</output><br>
+        <label>Gap</label><br>
+        <input type="range" id="scoring gap" name="gap" min="-10" max="-1" value="-2" step="1"
+            onchange="this.nextElementSibling.value = this.value"><output>-2</output><br>
+        <br>
+        <button>Align Sequences</button>
+    </form>
+
+    <div id="alignment" class="grid-container"></div>
+
+    <script src="align-algs.js"></script>
+</body>
