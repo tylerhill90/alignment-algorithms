@@ -82,6 +82,9 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         };
     };
 
+    console.log(scoreMatrix)
+    console.log(pointerMatrix)
+
     // Find the max score and its coordinates in the matrix
     var maxScore = 0;
     var coords = [0, 0]
@@ -106,7 +109,7 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         coords = [iNext, jNext]
 
         path.splice(0, 0, coords)
-    }
+    };
 
     // Print the alignment
     var seq1Results = new Array();
@@ -117,16 +120,22 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         var pointer = pointerMatrix[path[i][0]][path[i][1]];
 
         if (pointer[0] == -1 && pointer[1] == -1) {
-            seq1Results.push(seq1[path[i][0] - 1]);
-            alignSymbols.push("|");
-            seq2Results.push(seq2[path[i][1] - 1]);
+            if (seq1[path[i][0] - 1] == seq2[path[i][1] - 1]) {
+                seq1Results.push(seq1[path[i][0] - 1]);
+                alignSymbols.push("|");
+                seq2Results.push(seq2[path[i][1] - 1]);
+            } else {
+                seq1Results.push(seq1[path[i][0] - 1]);
+                alignSymbols.push(" ");
+                seq2Results.push(seq2[path[i][1] - 1]);
+            };
         } else if (pointer[0] == 0 && pointer[1] == -1) {
             seq1Results.push("-");
             alignSymbols.push(" ");
             seq2Results.push([seq2[path[i][1] - 1]]);
         } else {
             seq1Results.push(seq1[path[i][0] - 1]);
-            alignSymbols.push("|");
+            alignSymbols.push(" ");
             seq2Results.push("-");
         };
     };
@@ -160,19 +169,19 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
 };
 
 function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
-    seq1 = Array.from(seq1)
-    seq2 = Array.from(seq2)
+    seq1 = Array.from(seq1);
+    seq2 = Array.from(seq2);
 
     // Initialize an empty matrix
     var scoreMatrix = [...Array(seq1.length + 1)].map(e => Array(seq2.length + 1));
 
     // Fill in the first row and column with the appropriate values
-    scoreMatrix[0][0] = 0
+    scoreMatrix[0][0] = 0;
     for (var i = 1; i < seq1.length + 1; i++) {
         scoreMatrix[i][0] = gap * i
     };
     for (var i = 1; i < seq2.length + 1; i++) {
         scoreMatrix[0][i] = gap * i
     };
-    console.log(scoreMatrix)
+    console.log(scoreMatrix);
 };
