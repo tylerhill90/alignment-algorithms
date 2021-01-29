@@ -78,88 +78,100 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         }
     }
 
-    // Find the max score and its coordinates in the matrix
+    // Find the max score in the matrix
     var maxScore = 0;
-    var coords = [0, 0]
+    var coords = new Array();
     for (var i = 1; i < seq1.length + 1; i++) {
         for (var j = 1; j < seq2.length + 1; j++) {
             if (matrix[i][j].score > maxScore) {
                 maxScore = matrix[i][j].score;
-                coords = [i, j]
             }
         }
     }
-    console.log(matrix)
-    console.log(coords)
 
-    // Trace back from the highest score until a score of 0
-    var path = [coords]
-    var i = coords[0];
-    var j = coords[1];
-    while (matrix[i][j].score !== 0) {
-        var temp = matrix[i][j].pointers[0];
-        var iNext = temp[0] + i;
-        var jNext = temp[1] + j;
-        coords = [iNext, jNext]
-        i = coords[0];
-        j = coords[1];
-        path.splice(0, 0, coords)
-    };
+    // Find the coordinates of each occurrence of the max score in the matrix
+    for (var i = 1; i < seq1.length + 1; i++) {
+        for (var j = 1; j < seq2.length + 1; j++) {
+            if (matrix[i][j].score === maxScore) {
+                coords.push([i, j]);
+            }
+        }
+    }
 
-    // Print the alignment
-    var seq1Results = new Array();
-    var alignSymbols = new Array();
-    var seq2Results = new Array();
+    // Find all possible paths - NEEDS RECURSION
+    var allPaths = new Array();
+    for (var x = 0; x < coords.length; x++) {
+        // Trace back from the highest score until a score of 0
+        var start = coords[x];
+        var path = [start]
+        var i = start[0];
+        var j = start[1];
+        while (matrix[i][j].score !== 0) {
+            var temp = matrix[i][j].pointers[0];
+            i = temp[0] + i;
+            j = temp[1] + j;
+            path.splice(0, 0, [i, j]);
+        }
+        allPaths.push(path)
+    }
 
-    for (var i = 1; i < path.length; i++) {
-        var pointer = matrix[path[i][0]][path[i][1]].pointers[0];
+    // Print the alignment(s)
+    var alignmentEl = document.getElementById('alignment');
+    alignmentEl.innerHTML = "";
+    for (var x = 0; x < allPaths.length; x++) {
+        var seq1Results = new Array();
+        var alignSymbols = new Array();
+        var seq2Results = new Array();
+        //path = allPaths[x];
 
-        if (pointer[0] == -1 && pointer[1] == -1) {
-            if (seq1[path[i][0] - 1] == seq2[path[i][1] - 1]) {
-                seq1Results.push(seq1[path[i][0] - 1]);
-                alignSymbols.push("|");
-                seq2Results.push(seq2[path[i][1] - 1]);
-            } else {
+        for (var i = 1; i < path.length; i++) {
+            var pointer = matrix[path[i][0]][path[i][1]].pointers[0];
+            if (pointer[0] === -1 && pointer[1] === -1) {
+                if (seq1[path[i][0] - 1] == seq2[path[i][1] - 1]) { //Match
+                    seq1Results.push(seq1[path[i][0] - 1]);
+                    alignSymbols.push("|");
+                    seq2Results.push(seq2[path[i][1] - 1]);
+                } else {                                            //Mismatch
+                    seq1Results.push(seq1[path[i][0] - 1]);
+                    alignSymbols.push(" ");
+                    seq2Results.push(seq2[path[i][1] - 1]);
+                };
+            } else if (pointer[0] == 0 && pointer[1] == -1) {       //Gap seq1
+                seq1Results.push("-");
+                alignSymbols.push(" ");
+                seq2Results.push([seq2[path[i][1] - 1]]);
+            } else {                                                //Gap seq2
                 seq1Results.push(seq1[path[i][0] - 1]);
                 alignSymbols.push(" ");
-                seq2Results.push(seq2[path[i][1] - 1]);
+                seq2Results.push("-");
             };
-        } else if (pointer[0] == 0 && pointer[1] == -1) {
-            seq1Results.push("-");
-            alignSymbols.push(" ");
-            seq2Results.push([seq2[path[i][1] - 1]]);
-        } else {
-            seq1Results.push(seq1[path[i][0] - 1]);
-            alignSymbols.push(" ");
-            seq2Results.push("-");
         };
-    };
 
-    var alignmentEl = document.getElementById('alignment');
-    alignmentEl.innerHTML = ""
-    var n = seq1Results.length;
-    for (var i = 0; i < n; i++) {
-        let gridItem = document.createElement('div');
-        gridItem.className = 'grid-item';
-        gridItem.innerHTML += seq1Results[i];
-        alignmentEl.appendChild(gridItem);
-    };
+        var n = seq1Results.length;
+        for (var i = 0; i < n; i++) {
+            let gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.innerHTML += seq1Results[i];
+            alignmentEl.appendChild(gridItem);
+        };
 
-    for (var i = 0; i < n; i++) {
-        let gridItem = document.createElement('div');
-        gridItem.className = 'grid-item';
-        gridItem.innerHTML += alignSymbols[i];
-        alignmentEl.appendChild(gridItem);
-    };
+        for (var i = 0; i < n; i++) {
+            let gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.innerHTML += alignSymbols[i];
+            alignmentEl.appendChild(gridItem);
+        };
 
-    for (var i = 0; i < n; i++) {
-        let gridItem = document.createElement('div');
-        gridItem.className = 'grid-item';
-        gridItem.innerHTML += seq2Results[i];
-        alignmentEl.appendChild(gridItem);
-    };
+        for (var i = 0; i < n; i++) {
+            let gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.innerHTML += seq2Results[i];
+            alignmentEl.appendChild(gridItem);
+        };
 
-    document.documentElement.style.setProperty("--colNum", n);
+        document.documentElement.style.setProperty("--colNum", n);
+
+    }
 
 };
 

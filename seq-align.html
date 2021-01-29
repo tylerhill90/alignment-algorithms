@@ -31,9 +31,9 @@
 <body>
     <form autocomplete="off" id="seqAlignForm">
         <label for="seq1">First Sequence</label><br>
-        <input type="text" name="seq1" value="HELLOTHEREBUD" required><br>
+        <input type="text" name="seq1" value="HALOTHEIRBOD" required><br>
         <label for="seq2">Second Sequence</label><br>
-        <input type="text" name="seq2" value="HALOTHEIRBOD" required><br>
+        <input type="text" name="seq2" value="HELLOTHERBUD" required><br>
         <br>
         <label>Algorithm</label><br>
         <input type="radio" id="sw" name="algorithm" value="Smith-Waterman" checked>
@@ -43,10 +43,10 @@
         <br>
         <label>Scoring Schema</label><br>
         <label>Match</label><br>
-        <input type="range" id="scoring match" name="match" min="1" max="10" value="5" step="1"
+        <input type="range" id="scoring match" name="match" min="1" max="10" value="1" step="1"
             onchange="this.nextElementSibling.value = this.value"><output>3</output><br>
         <label>Mismatch</label><br>
-        <input type="range" id="scoring mismatch" name="mismatch" min="-10" max="-1" value="-4" step="1"
+        <input type="range" id="scoring mismatch" name="mismatch" min="-10" max="-1" value="-1" step="1"
             onchange="this.nextElementSibling.value = this.value"><output>-3</output><br>
         <label>Gap</label><br>
         <input type="range" id="scoring gap" name="gap" min="-10" max="-1" value="-2" step="1"
