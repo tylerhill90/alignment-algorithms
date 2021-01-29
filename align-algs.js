@@ -4,9 +4,9 @@ seqAlignForm.onsubmit = async (e) => {
     var formData = new FormData(formElement);
     var seq1 = formData.get('seq1');
     var seq2 = formData.get('seq2');
-    var match = formData.get('match');
-    var mismatch = formData.get('mismatch');
-    var gap = formData.get('gap');
+    var match = parseInt(formData.get('match'));
+    var mismatch = parseInt(formData.get('mismatch'));
+    var gap = parseInt(formData.get('gap'));
     if (document.getElementById('sw').checked) {
         var alignment = smithWaterman(seq1, seq2, match, mismatch, gap);
     } else {
@@ -14,100 +14,95 @@ seqAlignForm.onsubmit = async (e) => {
     }
 };
 
+class Node {
+    constructor() {
+        this.score = 0;
+        this.pointers = new Array;
+    }
+}
+
 function smithWaterman(seq1, seq2, match, mismatch, gap) {
-    seq1 = Array.from(seq1)
-    seq2 = Array.from(seq2)
-    match = parseInt(match)
-    mismatch = parseInt(mismatch)
-    gap = parseInt(gap)
+    seq1 = Array.from(seq1);
+    seq2 = Array.from(seq2);
+    match = parseInt(match);
+    mismatch = parseInt(mismatch);
+    gap = parseInt(gap);
 
-    // Initialize an empty matrix for score and for remembering pointers
-    var scoreMatrix = [...Array(seq1.length + 1)].map(() => Array(seq2.length + 1));
-    var pointerMatrix = [...Array(seq1.length + 1)].map(() => Array(seq2.length + 1));
-
-    // Fill in the first row and column with zeros
+    // Initialize a matrix of Nodes
+    var matrix = [];
     for (var i = 0; i < seq1.length + 1; i++) {
-        scoreMatrix[i][0] = 0
-    };
-    for (var i = 1; i < seq2.length + 1; i++) {
-        scoreMatrix[0][i] = 0
-    };
+        matrix.push([])
+        for (var j = 0; j < seq2.length + 1; j++) {
+            matrix[i].push(new Node)
+        }
+    }
 
-    // Fill in the rest of the score and pointer matrix
+    // Add the scores
     for (var i = 1; i < seq1.length + 1; i++) {
         for (var j = 1; j < seq2.length + 1; j++) {
-            var lookLeft = scoreMatrix[i - 1][j] + gap;
+            var lookLeft = matrix[i - 1][j].score + gap;
             if (lookLeft < 0) {
                 lookLeft = 0;
-            };
+            }
 
-            var lookUp = scoreMatrix[i][j - 1] + gap;
+            var lookUp = matrix[i][j - 1].score + gap;
             if (lookUp < 0) {
                 lookUp = 0;
-            };
+            }
 
-            var lookDiag = scoreMatrix[i - 1][j - 1];
+            var lookDiag = matrix[i - 1][j - 1].score;
             if (seq1[i - 1] === seq2[j - 1]) {
                 lookDiag += match;
             } else {
                 lookDiag += mismatch;
-            };
+            }
             if (lookDiag < 0) {
                 lookDiag = 0;
-            };
+            }
 
             var max = Math.max(lookLeft, lookUp, lookDiag);
-            scoreMatrix[i][j] = max;
+            matrix[i][j].score = max;
 
-            // Fill in the pointer matrix
+            // Add the pointers
             if (max !== 0) {
                 if (max === lookLeft) {
-                    pointerMatrix[i][j] = [-1, 0];
-                };
+                    matrix[i][j].pointers.push([-1, 0]);
+                }
                 if (max === lookUp) {
-                    if (pointerMatrix[i][j]) {
-                        pointerMatrix[i][j].push([0, -1])
-                    } else {
-                        pointerMatrix[i][j] = [0, -1];
-                    };
-                };
+                    matrix[i][j].pointers.push([0, -1]);
+                }
                 if (max === lookDiag) {
-                    if (pointerMatrix[i][j]) {
-                        pointerMatrix[i][j].push([-1, -1])
-                    } else {
-                        pointerMatrix[i][j] = [-1, -1];
-                    };
-                };
-            };
-        };
-    };
-
-    console.log(scoreMatrix)
-    console.log(pointerMatrix)
+                    matrix[i][j].pointers.push([-1, -1]);
+                }
+            }
+        }
+    }
 
     // Find the max score and its coordinates in the matrix
     var maxScore = 0;
     var coords = [0, 0]
     for (var i = 1; i < seq1.length + 1; i++) {
         for (var j = 1; j < seq2.length + 1; j++) {
-            if (scoreMatrix[i][j] > maxScore) {
-                maxScore = scoreMatrix[i][j];
+            if (matrix[i][j].score > maxScore) {
+                maxScore = matrix[i][j].score;
                 coords = [i, j]
             }
         }
     }
+    console.log(matrix)
+    console.log(coords)
 
     // Trace back from the highest score until a score of 0
     var path = [coords]
     var i = coords[0];
     var j = coords[1];
-    while (scoreMatrix[coords[0]][coords[1]] !== 0) {
+    while (matrix[i][j].score !== 0) {
+        var temp = matrix[i][j].pointers[0];
+        var iNext = temp[0] + i;
+        var jNext = temp[1] + j;
+        coords = [iNext, jNext]
         i = coords[0];
         j = coords[1];
-        var iNext = pointerMatrix[i][j][0] + i;
-        var jNext = pointerMatrix[i][j][1] + j;
-        coords = [iNext, jNext]
-
         path.splice(0, 0, coords)
     };
 
@@ -117,7 +112,7 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
     var seq2Results = new Array();
 
     for (var i = 1; i < path.length; i++) {
-        var pointer = pointerMatrix[path[i][0]][path[i][1]];
+        var pointer = matrix[path[i][0]][path[i][1]].pointers[0];
 
         if (pointer[0] == -1 && pointer[1] == -1) {
             if (seq1[path[i][0] - 1] == seq2[path[i][1] - 1]) {
@@ -183,5 +178,4 @@ function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
     for (var i = 1; i < seq2.length + 1; i++) {
         scoreMatrix[0][i] = gap * i
     };
-    console.log(scoreMatrix);
 };
