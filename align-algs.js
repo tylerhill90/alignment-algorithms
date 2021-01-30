@@ -115,6 +115,8 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         allPaths.push(path)
     }
 
+    buildMatrixEl(seq1, seq2, matrix, allPaths)
+
     // Print the alignment(s)
     var alignmentEl = document.getElementById('alignment');
     alignmentEl.innerHTML = "";
@@ -174,6 +176,42 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
     }
 
 };
+
+
+function buildMatrixEl(seq1, seq2, matrix, allPaths) {
+    matrixContainer = document.getElementById('matrix-container');
+    matrixContainer.innerHTML = '';
+    for (var i = 0; i < seq2.length + 2; i++) {
+        var matrixRow = document.createElement('div');
+        matrixRow.className = 'matrix-row row-'.concat(i);
+        matrixContainer.appendChild(matrixRow);
+        
+        for (var j = 0; j < seq1.length + 2; j++) {
+            var matrixItem = document.createElement('div');
+            matrixItem.className = 'matrix-item item-'.concat(i, '-', j);
+
+            if (i === 0 && j < 2) {                 // First 2 spaces are blank
+                matrixItem.className += ' matrix-seq-char';
+                matrixItem.innerHTML = '&nbsp;';
+            } else if (i === 0 && j > 1) {          // Show seq1 across top
+                matrixItem.className += ' matrix-seq-char';
+                matrixItem.innerHTML = seq1[j - 2];
+            } else if (i > 0 && j > 0) {            // Fill in matrix scores
+                matrixItem.className += ' matrix-score';
+                matrixItem.innerHTML = matrix[i - 1][j - 1].score;
+            } else if (i < 2 && j === 0) {          // First 2 row spaces blank
+                matrixItem.className += ' matrix-seq-char';
+                matrixItem.innerHTML = '&nbsp;';
+            } else {                                // Show seq2 down the left
+                matrixItem.className += ' matrix-seq-char';
+                matrixItem.innerHTML = seq2[i - 2];
+            }
+
+            matrixRow.appendChild(matrixItem);
+        }
+    }
+};
+
 
 function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
     seq1 = Array.from(seq1);

@@ -8,14 +8,49 @@
     <title>Tyler Hill - Local Alignment Algorithms</title>
 
     <style>
-        .grid-container {
-            display: inline-grid;
-            grid-template-columns: repeat(var(--colNum), auto);
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, [col] auto);
+            grid-template-rows: [row] auto;
             background-color: #ffffff;
             padding: 30px;
         }
 
-        .grid-item {
+        .input-form {
+            grid-column: col 1;
+            grid-row: row;
+        }
+
+        .matrix-column {
+            grid-column: col 2;
+            grid-row: row;
+        }
+
+        .matrix-container {
+            display: grid;
+            grid-template-columns: ;
+            grid-template-rows: ;
+            background-color: #ffffff;
+        }
+
+        .matrix-row {
+
+        }
+
+        .matrix-seq-char {
+
+        }
+
+        .matrix-score {
+
+        }
+
+        .alignments-column {
+            grid-column: col 3;
+            grid-row: row;
+        }
+
+        .alignment-item {
             background-color: #ffffff;
             padding: 5px;
             font-size: 20px;
@@ -29,33 +64,48 @@
 </header>
 
 <body>
-    <form autocomplete="off" id="seqAlignForm">
-        <label for="seq1">First Sequence</label><br>
-        <input type="text" name="seq1" value="HALOTHEIRBOD" required><br>
-        <label for="seq2">Second Sequence</label><br>
-        <input type="text" name="seq2" value="HELLOTHERBUD" required><br>
-        <br>
-        <label>Algorithm</label><br>
-        <input type="radio" id="sw" name="algorithm" value="Smith-Waterman" checked>
-        <label for="sw">Smith-Waterman</label><br>
-        <input type="radio" id="nw" name="algorithm" value="Needleman-Wunsch">
-        <label for="nw">Needleman-Wunsch</label><br>
-        <br>
-        <label>Scoring Schema</label><br>
-        <label>Match</label><br>
-        <input type="range" id="scoring match" name="match" min="1" max="10" value="1" step="1"
-            onchange="this.nextElementSibling.value = this.value"><output>3</output><br>
-        <label>Mismatch</label><br>
-        <input type="range" id="scoring mismatch" name="mismatch" min="-10" max="-1" value="-1" step="1"
-            onchange="this.nextElementSibling.value = this.value"><output>-3</output><br>
-        <label>Gap</label><br>
-        <input type="range" id="scoring gap" name="gap" min="-10" max="-1" value="-2" step="1"
-            onchange="this.nextElementSibling.value = this.value"><output>-2</output><br>
-        <br>
-        <button>Align Sequences</button>
-    </form>
 
-    <div id="alignment" class="grid-container"></div>
+    <div class="container">
+
+        <div class="input-form">
+            <form autocomplete="off" id="seqAlignForm">
+                <label for="seq1">First Sequence</label><br>
+                <input type="text" name="seq1" value="HALOTHEIRBOD" required><br>
+                <label for="seq2">Second Sequence</label><br>
+                <input type="text" name="seq2" value="HELLOTHERBUD" required><br>
+                <br>
+                <label>Algorithm</label><br>
+                <input type="radio" id="sw" name="algorithm" value="Smith-Waterman" checked>
+                <label for="sw">Smith-Waterman</label><br>
+                <input type="radio" id="nw" name="algorithm" value="Needleman-Wunsch">
+                <label for="nw">Needleman-Wunsch</label><br>
+                <br>
+                <label>Scoring Schema</label><br>
+                <label>Match</label><br>
+                <input type="range" id="scoring match" name="match" min="1" max="10" value="1" step="1"
+                    onchange="this.nextElementSibling.value = this.value"><output>3</output><br>
+                <label>Mismatch</label><br>
+                <input type="range" id="scoring mismatch" name="mismatch" min="-10" max="-1" value="-1" step="1"
+                    onchange="this.nextElementSibling.value = this.value"><output>-3</output><br>
+                <label>Gap</label><br>
+                <input type="range" id="scoring gap" name="gap" min="-10" max="-1" value="-2" step="1"
+                    onchange="this.nextElementSibling.value = this.value"><output>-2</output><br>
+                <br>
+                <button>Align Sequences</button>
+            </form>
+        </div>
+
+        <div class="matrix-column">
+            <div class="matrix-container" id="matrix-container">
+
+            </div>
+        </div>
+
+        <div class="alignments-column">
+
+        </div>
+
+    </div>
 
     <script src="align-algs.js"></script>
 </body>
