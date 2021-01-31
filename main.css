@@ -1,0 +1,94 @@
+.container {
+    display: grid;
+    grid-template-columns: 230px 325px;
+    grid-template-rows: 350px 1fr;
+    gap: 0px 0px;
+    grid-template-areas:
+        "input-form alignments"
+        "matrix matrix"
+        "algo-explanation algo-explanation";
+    background-color: #ffffff;
+    padding: 30px;
+    justify-content: center;
+}
+
+h1 {
+    text-align: center;
+}
+
+h3 {
+    text-align: center;
+}
+
+.matrix h3 {
+    text-align: left;
+    padding-top: 30px;
+}
+
+.input-form {
+    grid-area: input-form;
+}
+
+.alignments {
+    grid-area: alignments;
+    border-style: groove;
+    padding-left: 15px;
+    clear: left;
+    float: left;
+    max-height: 350px;
+    max-width: 275px;
+    overflow-y: scroll;
+    vertical-align: top;
+}
+
+.alignment-item {
+    background-color: #ffffff;
+    padding: 5px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.alignments p {
+    vertical-align: bottom;
+}
+
+.selectable {
+    border-bottom: 0;
+    cursor: pointer;
+    font-family: serif;
+    font-size: 1.1em;
+    position: relative;
+}
+
+.selected {
+    background-color: #5582BC;
+    color: white;
+}
+
+.matrix {
+    grid-area: matrix;
+}
+
+.matrix-container {
+    display: grid;
+    grid-template-columns: repeat(var(--colNumMatrix), 25px);
+    grid-template-rows: repeat(var(--rowNumMatrix), 25px);
+    background-color: #ffffff;
+    padding-bottom: 30px;
+}
+
+.seq-char {
+    text-align: center;
+    padding: 3px;
+    border: 1px solid rgb(255, 255, 255);
+}
+
+.score {
+    text-align: center;
+    padding: 3px;
+    border: 1px solid rgb(0, 0, 0);
+}
+
+.algo-explaination {
+    grid-area: algo-explanation;
+}

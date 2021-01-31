@@ -2,8 +2,8 @@ seqAlignForm.onsubmit = async (e) => {
     e.preventDefault();
     var formElement = document.querySelector('form');
     var formData = new FormData(formElement);
-    var seq1 = formData.get('seq1');
-    var seq2 = formData.get('seq2');
+    var seq1 = formData.get('seq1').replaceAll(' ', '_');
+    var seq2 = formData.get('seq2').replaceAll(' ', '_');
     var match = parseInt(formData.get('match'));
     var mismatch = parseInt(formData.get('mismatch'));
     var gap = parseInt(formData.get('gap'));
@@ -145,7 +145,7 @@ function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
                     seq2Results.push(seq2[path[i][1] - 1]);
                 } else {                                            //Mismatch
                     seq1Results.push(seq1[path[i][0] - 1]);
-                    alignSymbols.push(" ");
+                    alignSymbols.push("*");
                     seq2Results.push(seq2[path[i][1] - 1]);
                 };
             } else if (pointer[0] == 0 && pointer[1] == -1) {       //Gap seq1
@@ -217,7 +217,7 @@ function highlightMatrix() {
     }
 
     // Highlight the selected path
-    for (var x = 1; x < path.length; x++) {
+    for (var x = 0; x < path.length; x++) {
         var cell = path[x];
         var col = cell[0] + 1;
         var row = cell[1] + 1;
