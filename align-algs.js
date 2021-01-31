@@ -8,11 +8,12 @@ seqAlignForm.onsubmit = async (e) => {
     var mismatch = parseInt(formData.get('mismatch'));
     var gap = parseInt(formData.get('gap'));
     if (document.getElementById('sw').checked) {
-        var alignment = smithWaterman(seq1, seq2, match, mismatch, gap);
+        smithWaterman(seq1, seq2, match, mismatch, gap);
     } else {
-        var alignment = needlemanWunsch(seq1, seq2, match, mismatch, gap);
+        needlemanWunsch(seq1, seq2, match, mismatch, gap);
     }
 };
+
 
 class Node {
     constructor() {
@@ -20,6 +21,10 @@ class Node {
         this.pointers = new Array;
     }
 }
+
+
+var allPaths = new Array();
+
 
 function smithWaterman(seq1, seq2, match, mismatch, gap) {
     seq1 = Array.from(seq1);
@@ -98,8 +103,8 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         }
     }
 
-    // Find all possible paths - NEEDS RECURSION
-    var allPaths = new Array();
+    // Find all possible paths from max score coordinate(s)
+    allPaths = new Array();
     for (var x = 0; x < coords.length; x++) {
         // Trace back from the highest score until a score of 0
         var start = coords[x];
@@ -115,16 +120,21 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         allPaths.push(path)
     }
 
-    buildMatrixEl(seq1, seq2, matrix, allPaths)
+    buildMatrixEl(seq1, seq2, matrix, allPaths);
 
-    // Print the alignment(s)
-    var alignmentEl = document.getElementById('alignment');
-    alignmentEl.innerHTML = "";
+    buildAlignmentsEl(seq1, seq2, matrix, allPaths);
+};
+
+
+function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
+    var results = new Array();
+
     for (var x = 0; x < allPaths.length; x++) {
         var seq1Results = new Array();
         var alignSymbols = new Array();
         var seq2Results = new Array();
-        //path = allPaths[x];
+
+        var path = allPaths[x]
 
         for (var i = 1; i < path.length; i++) {
             var pointer = matrix[path[i][0]][path[i][1]].pointers[0];
@@ -148,68 +158,115 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
                 seq2Results.push("-");
             };
         };
+        results.push([seq1Results, alignSymbols, seq2Results])
+    };
 
-        var n = seq1Results.length;
-        for (var i = 0; i < n; i++) {
-            let gridItem = document.createElement('div');
-            gridItem.className = 'grid-item';
-            gridItem.innerHTML += seq1Results[i];
-            alignmentEl.appendChild(gridItem);
-        };
-
-        for (var i = 0; i < n; i++) {
-            let gridItem = document.createElement('div');
-            gridItem.className = 'grid-item';
-            gridItem.innerHTML += alignSymbols[i];
-            alignmentEl.appendChild(gridItem);
-        };
-
-        for (var i = 0; i < n; i++) {
-            let gridItem = document.createElement('div');
-            gridItem.className = 'grid-item';
-            gridItem.innerHTML += seq2Results[i];
-            alignmentEl.appendChild(gridItem);
-        };
-
-        document.documentElement.style.setProperty("--colNum", n);
-
+    // Reset the alignments element
+    var alignmentsResults = document.getElementById('alignments');
+    alignmentsResults.innerHTML = '';
+    // Fill in the alignments element
+    for (var x = 0; x < allPaths.length; x++) {
+        var tr = document.createElement('tr');
+        alignmentsResults.appendChild(tr);
+        var td = document.createElement('td');
+        td.className = 'selectable alignment-'.concat(x);
+        td.id = x;
+        tr.appendChild(td);
+        var code1 = document.createElement('code');
+        code1.innerHTML = results[x][0].join('&nbsp;').concat('<br>');
+        td.appendChild(code1)
+        var code2 = document.createElement('code');
+        code2.innerHTML = results[x][1].join('&nbsp;').concat('<br>');
+        td.appendChild(code2)
+        var code3 = document.createElement('code');
+        code3.innerHTML = results[x][2].join('&nbsp;').concat('<br>');
+        td.appendChild(code3)
     }
 
+    var alignments = document.getElementsByClassName('selectable');
+    for (var i = 0; i < alignments.length; i++) {
+        alignments[i].addEventListener('click', highlightMatrix);
+    }
 };
 
 
+function highlightMatrix() {
+    // Get the path that was clicked
+    var alignment = this.classList;
+    path_n = parseInt(alignment[1].slice(-1));
+    var path = allPaths[path_n]
+
+    // Clear any previously selected alignment
+    var toClear = document.getElementsByClassName('selectable');
+    for (var x = 0; x < toClear.length; x++) {
+        if (toClear.item(x).classList.contains('selected')) {
+            toClear.item(x).classList.remove('selected');
+        }
+    }
+
+    // Highlight the selected alignment
+    var toSelect = document.getElementsByClassName(alignment[1]);
+    toSelect.item(0).classList.add('selected');
+
+    // Clear the matrix of any highlighted cells
+    var matrixCells = document.getElementsByClassName('matrix-cell');
+    for (var x = 0; x < matrixCells.length; x++) {
+        if (matrixCells.item(x).classList.contains('selected')) {
+            matrixCells.item(x).classList.remove('selected');
+        }
+    }
+
+    // Highlight the selected path
+    for (var x = 1; x < path.length; x++) {
+        var cell = path[x];
+        var col = cell[0] + 1;
+        var row = cell[1] + 1;
+        var matrixItem = document.getElementsByClassName('item-'.concat(col, '-', row));
+        matrixItem.item(0).classList.add('selected');
+    }
+
+}
+
+
 function buildMatrixEl(seq1, seq2, matrix, allPaths) {
+    // Reset the matrix element
     matrixContainer = document.getElementById('matrix-container');
     matrixContainer.innerHTML = '';
-    for (var i = 0; i < seq2.length + 2; i++) {
+    // Fill in the matrix element
+    for (var i = 0; i < seq1.length + 2; i++) {
         var matrixRow = document.createElement('div');
-        matrixRow.className = 'matrix-row row-'.concat(i);
+        matrixRow.className = 'col-'.concat(i);
         matrixContainer.appendChild(matrixRow);
-        
-        for (var j = 0; j < seq1.length + 2; j++) {
+
+        for (var j = 0; j < seq2.length + 2; j++) {
             var matrixItem = document.createElement('div');
-            matrixItem.className = 'matrix-item item-'.concat(i, '-', j);
+            matrixItem.className = 'matrix-cell item-'.concat(i, '-', j);
 
             if (i === 0 && j < 2) {                 // First 2 spaces are blank
-                matrixItem.className += ' matrix-seq-char';
+                matrixItem.className += ' seq-char';
                 matrixItem.innerHTML = '&nbsp;';
             } else if (i === 0 && j > 1) {          // Show seq1 across top
-                matrixItem.className += ' matrix-seq-char';
-                matrixItem.innerHTML = seq1[j - 2];
+                matrixItem.className += ' seq-char';
+                matrixItem.innerHTML = seq2[j - 2];
             } else if (i > 0 && j > 0) {            // Fill in matrix scores
-                matrixItem.className += ' matrix-score';
+                matrixItem.className += ' score';
                 matrixItem.innerHTML = matrix[i - 1][j - 1].score;
             } else if (i < 2 && j === 0) {          // First 2 row spaces blank
-                matrixItem.className += ' matrix-seq-char';
+                matrixItem.className += ' seq-char';
                 matrixItem.innerHTML = '&nbsp;';
             } else {                                // Show seq2 down the left
-                matrixItem.className += ' matrix-seq-char';
-                matrixItem.innerHTML = seq2[i - 2];
+                matrixItem.className += ' seq-char';
+                matrixItem.innerHTML = seq1[i - 2];
             }
 
             matrixRow.appendChild(matrixItem);
         }
     }
+
+    var columns = seq1.length + 2;
+    var rows = seq2.length + 2;
+    document.documentElement.style.setProperty('--colNumMatrix', columns);
+    document.documentElement.style.setProperty('--rowNumMatrix', rows);
 };
 
 

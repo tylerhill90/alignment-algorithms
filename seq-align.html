@@ -21,33 +21,38 @@
             grid-row: row;
         }
 
-        .matrix-column {
+        .matrix {
             grid-column: col 2;
             grid-row: row;
         }
 
         .matrix-container {
             display: grid;
-            grid-template-columns: ;
-            grid-template-rows: ;
+            grid-template-columns: repeat(var(--colNumMatrix), 25px);
+            grid-template-rows: repeat(var(--rowNumMatrix), 25px);
             background-color: #ffffff;
         }
 
-        .matrix-row {
-
+        .seq-char {
+            text-align: center;
+            padding: 3px;
+            border: 1px solid rgb(255, 255, 255);
         }
 
-        .matrix-seq-char {
-
+        .score {
+            text-align: center;
+            padding: 3px;
+            border: 1px solid rgb(0, 0, 0);
         }
 
-        .matrix-score {
-
-        }
-
-        .alignments-column {
-            grid-column: col 3;
-            grid-row: row;
+        .alignments {
+            border: none;
+            clear: left;
+            float: left;
+            max-height: 200px;
+            max-width: 250px;
+            overflow-y: scroll;
+            vertical-align: top;
         }
 
         .alignment-item {
@@ -55,6 +60,19 @@
             padding: 5px;
             font-size: 20px;
             text-align: center;
+        }
+
+        .selectable {
+            border-bottom: 0;
+            cursor: pointer;
+            font-family: serif;
+            font-size: 1.1em;
+            position: relative;
+        }
+
+        .selected {
+            background-color: #5582BC;
+            color: white;
         }
     </style>
 </head>
@@ -93,16 +111,19 @@
                 <br>
                 <button>Align Sequences</button>
             </form>
+
         </div>
 
-        <div class="matrix-column">
-            <div class="matrix-container" id="matrix-container">
-
-            </div>
+        <div class="matrix">
+            <div class="matrix-container" id="matrix-container"></div>
         </div>
 
-        <div class="alignments-column">
+        <div class="alignments">
+            <table class="results">
+                <tbody id="alignments">
 
+                </tbody>
+            </table>
         </div>
 
     </div>
