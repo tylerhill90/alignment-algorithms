@@ -191,7 +191,7 @@ function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
     // Trace-back from the bottom right to the top left of the matrix
     var start = new Array([seq1.length, seq2.length])
     allPaths = new Array()
-    traceBackNW(start, matrix);
+    traceBack(start, matrix);
     // Reverse each path in allPaths
     for (var x = 0; x < allPaths.length; x++) {
         allPaths[x] = allPaths[x].reverse()
@@ -204,7 +204,7 @@ function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
 
 
 // Recursively trace-back through the matrix
-function traceBackNW(paths, matrix) {
+function traceBack(paths, matrix) {
     var i = paths[paths.length - 1][0];
     var j = paths[paths.length - 1][1];
     var iNext = i;
@@ -220,7 +220,7 @@ function traceBackNW(paths, matrix) {
         iNext += pointers[0][0];
         jNext += pointers[0][1];
         paths[paths.length] = [iNext, jNext];
-        traceBackNW(paths, matrix);
+        traceBack(paths, matrix);
     } else {
         var pathLen = paths.length
         for (var x = 0; x < pointers.length; x++) {
@@ -230,11 +230,11 @@ function traceBackNW(paths, matrix) {
             jNext += pointers[x][1];
             if (x === 0) {
                 paths[paths.length] = [iNext, jNext];
-                traceBackNW(paths, matrix);
+                traceBack(paths, matrix);
             } else {
                 paths = allPaths[allPaths.length - 1].slice(0, pathLen);
                 paths[paths.length] = [iNext, jNext];
-                traceBackNW(paths, matrix);
+                traceBack(paths, matrix);
             }
         }
     }
@@ -245,24 +245,25 @@ function traceBackNW(paths, matrix) {
 function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
     var results = new Array();
 
+    console.log(matrix)
+
     // Create formatted strings for each alignment from its path in the matrix
-    for (var x = 0; x < allPaths.length; x++) {
+    for (var z = 0; z < allPaths.length; z++) {
         var seq1Results = new Array();
         var alignSymbols = new Array();
         var seq2Results = new Array();
 
-        var path = allPaths[x]
+        var path = allPaths[z]
+        console.log(path)
         for (var i = 1; i < path.length; i++) {
-            if (matrix[path[i][0]][path[i][1]].pointers.length > 1) {
-                console.log(matrix[path[i][0]][path[i][1]].pointers)
-                var x = 0;
-            } else {
-                var x = 0;
-            }
-            var pointer = matrix[path[i][0]][path[i][1]].pointers[x];
             if (path[i][0] === 0 && path[i][1] === 0) {
                 break;
             }
+            var x = path[i - 1][0] - path[i][0];
+            var y = path[i - 1][1] - path[i][1];
+            var pointer = [x, y];
+            console.log(pointer)
+
             if (pointer[0] === -1 && pointer[1] === -1) {
                 if (seq1[path[i][0] - 1] == seq2[path[i][1] - 1]) { //Match
                     seq1Results.push(seq1[path[i][0] - 1]);

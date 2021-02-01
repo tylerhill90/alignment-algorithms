@@ -7,7 +7,7 @@
 
     <title>Tyler Hill - Local Alignment Algorithms</title>
 
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="align-algs.css">
 
 </head>
 
@@ -25,12 +25,12 @@
                 <label for="seq1"><strong>First Sequence</strong></label><br>
                 <input type="text" name="seq1" value="AATCG" maxlength="20" required><br><br>
                 <label for="seq2"><strong>Second Sequence</strong></label><br>
-                <input type="text" name="seq2" value="AATTCG" maxlength="20" required><br>
+                <input type="text" name="seq2" value="AACG" maxlength="20" required><br>
                 <br>
                 <label><strong>Algorithm</strong></label><br>
-                <input type="radio" id="sw" name="algorithm" value="Smith-Waterman">
+                <input type="radio" id="sw" name="algorithm" value="Smith-Waterman" checked>
                 <label for="sw">Smith-Waterman</label><br>
-                <input type="radio" id="nw" name="algorithm" value="Needleman-Wunsch" checked>
+                <input type="radio" id="nw" name="algorithm" value="Needleman-Wunsch">
                 <label for="nw">Needleman-Wunsch</label><br>
                 <br>
                 <label><strong>Scoring Schema</strong></label><br>
