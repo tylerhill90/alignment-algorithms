@@ -1,8 +1,8 @@
 .container {
     display: grid;
     grid-template-columns: 230px 325px;
-    grid-template-rows: 350px 1fr;
-    gap: 0px 0px;
+    grid-template-rows: 380px 1fr;
+    grid-gap: 20px;
     grid-template-areas:
         "input-form alignments"
         "matrix matrix"
@@ -18,11 +18,14 @@ h1 {
 
 h3 {
     text-align: center;
+    margin-top: 0px;
+    margin-bottom: 5px;
 }
 
 .matrix h3 {
     text-align: left;
-    padding-top: 30px;
+    margin-top: 0px;
+    margin-bottom: 5px;
 }
 
 .input-form {
@@ -90,4 +93,23 @@ h3 {
 
 .algo-explaination {
     grid-area: algo-explanation;
+}
+
+@supports (display: grid) {
+    @media only screen and (max-width:560px) {
+        .container {
+            display: grid;
+            grid-template-columns: 325px;
+            grid-template-rows: 380px 350px 1fr;
+            grid-gap: 20px;
+            grid-template-areas:
+                "input-form"
+                "alignments"
+                "matrix"
+                "algo-explanation";
+            background-color: #ffffff;
+            padding: 30px;
+            justify-content: center;
+        }
+    }
 }
