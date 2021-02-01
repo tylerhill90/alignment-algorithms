@@ -1,12 +1,16 @@
+// Get user input and run the requested algorithm
 seqAlignForm.onsubmit = async (e) => {
     e.preventDefault();
     var formElement = document.querySelector('form');
     var formData = new FormData(formElement);
+    // Change spaces to underscores for each sequence
     var seq1 = formData.get('seq1').replaceAll(' ', '_');
     var seq2 = formData.get('seq2').replaceAll(' ', '_');
+    // Parse score schema into integers
     var match = parseInt(formData.get('match'));
     var mismatch = parseInt(formData.get('mismatch'));
     var gap = parseInt(formData.get('gap'));
+    // Run the algorithm selected
     if (document.getElementById('sw').checked) {
         smithWaterman(seq1, seq2, match, mismatch, gap);
     } else {
@@ -15,6 +19,7 @@ seqAlignForm.onsubmit = async (e) => {
 };
 
 
+// Global variables
 class Node {
     constructor() {
         this.score = 0;
@@ -22,10 +27,10 @@ class Node {
     }
 }
 
-
 var allPaths = new Array();
 
 
+// Smith-Waterman local alignment algorithm
 function smithWaterman(seq1, seq2, match, mismatch, gap) {
     seq1 = Array.from(seq1);
     seq2 = Array.from(seq2);
@@ -42,7 +47,7 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         }
     }
 
-    // Add the scores
+    // Fill in the rest of the scores
     for (var i = 1; i < seq1.length + 1; i++) {
         for (var j = 1; j < seq2.length + 1; j++) {
             var lookLeft = matrix[i - 1][j].score + gap;
@@ -103,6 +108,7 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         }
     }
 
+    // Trace-back
     // Find all possible paths from max score coordinate(s)
     allPaths = new Array();
     for (var x = 0; x < coords.length; x++) {
@@ -120,24 +126,143 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
         allPaths.push(path)
     }
 
+    // Dynamically generate HTML output
     buildMatrixEl(seq1, seq2, matrix, allPaths);
-
     buildAlignmentsEl(seq1, seq2, matrix, allPaths);
 };
 
 
+// Needleman-Wunsch global alignment algorithm
+function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
+    seq1 = Array.from(seq1);
+    seq2 = Array.from(seq2);
+    match = parseInt(match);
+    mismatch = parseInt(mismatch);
+    gap = parseInt(gap);
+
+    // Initialize a matrix of Nodes
+    var matrix = [];
+    for (var i = 0; i < seq1.length + 1; i++) {
+        matrix.push([])
+        for (var j = 0; j < seq2.length + 1; j++) {
+            matrix[i].push(new Node)
+        }
+    }
+
+    // Initialize the first row and column with appropriate additive gap score
+    for (var i = 1; i < seq1.length + 1; i++) {
+        matrix[i][0].score = gap * i;
+    }
+    for (var j = 1; j < seq2.length + 1; j++) {
+        matrix[0][j].score = gap * j;
+    }
+
+    // Fill in the rest of the scores
+    for (var i = 1; i < seq1.length + 1; i++) {
+        for (var j = 1; j < seq2.length + 1; j++) {
+            var lookLeft = matrix[i - 1][j].score + gap;
+
+            var lookUp = matrix[i][j - 1].score + gap;
+
+            var lookDiag = matrix[i - 1][j - 1].score;
+            if (seq1[i - 1] === seq2[j - 1]) {
+                lookDiag += match;
+            } else {
+                lookDiag += mismatch;
+            }
+
+            var max = Math.max(lookLeft, lookUp, lookDiag);
+            matrix[i][j].score = max;
+
+            // Add the pointers
+            if (max === lookLeft) {
+                matrix[i][j].pointers.push([-1, 0]);
+            }
+            if (max === lookUp) {
+                matrix[i][j].pointers.push([0, -1]);
+            }
+            if (max === lookDiag) {
+                matrix[i][j].pointers.push([-1, -1]);
+            }
+
+        }
+    }
+
+    // Trace-back from the bottom right to the top left of the matrix
+    var start = new Array([seq1.length, seq2.length])
+    allPaths = new Array()
+    traceBackNW(start, matrix);
+    // Reverse each path in allPaths
+    for (var x = 0; x < allPaths.length; x++) {
+        allPaths[x] = allPaths[x].reverse()
+    }
+
+    // Dynamically generate HTML output
+    buildMatrixEl(seq1, seq2, matrix, allPaths);
+    buildAlignmentsEl(seq1, seq2, matrix, allPaths);
+};
+
+
+// Recursively trace-back through the matrix
+function traceBackNW(paths, matrix) {
+    var i = paths[paths.length - 1][0];
+    var j = paths[paths.length - 1][1];
+    var iNext = i;
+    var jNext = j;
+    var pointers = matrix[i][j].pointers;
+
+    // Base case when trace-back reaches the top left of matrix
+    if (i === 0 && j === 0) {
+        return allPaths.push(paths)
+    }
+
+    if (pointers.length === 1) {
+        iNext += pointers[0][0];
+        jNext += pointers[0][1];
+        paths[paths.length] = [iNext, jNext];
+        traceBackNW(paths, matrix);
+    } else {
+        var pathLen = paths.length
+        for (var x = 0; x < pointers.length; x++) {
+            iNext = i;
+            jNext = j;
+            iNext += pointers[x][0];
+            jNext += pointers[x][1];
+            if (x === 0) {
+                paths[paths.length] = [iNext, jNext];
+                traceBackNW(paths, matrix);
+            } else {
+                paths = allPaths[allPaths.length - 1].slice(0, pathLen);
+                paths[paths.length] = [iNext, jNext];
+                traceBackNW(paths, matrix);
+            }
+        }
+    }
+};
+
+
+// Generate the alignments element
 function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
     var results = new Array();
 
+    // Create formatted strings for each alignment from its path in the matrix
     for (var x = 0; x < allPaths.length; x++) {
         var seq1Results = new Array();
         var alignSymbols = new Array();
         var seq2Results = new Array();
 
         var path = allPaths[x]
-
         for (var i = 1; i < path.length; i++) {
-            var pointer = matrix[path[i][0]][path[i][1]].pointers[0];
+            if (matrix[path[i][0]][path[i][1]].pointers.length > 1) {
+                console.log(matrix[path[i][0]][path[i][1]].pointers)
+                var x = 0;
+            } else {
+                var x = 0;
+            }
+            var pointer = matrix[path[i][0]][path[i][1]].pointers[x];
+            if (path[i][0] === 0 && path[i][1] === 0) {
+                break;
+            }
             if (pointer[0] === -1 && pointer[1] === -1) {
                 if (seq1[path[i][0] - 1] == seq2[path[i][1] - 1]) { //Match
                     seq1Results.push(seq1[path[i][0] - 1]);
@@ -183,6 +308,7 @@ function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
         td.appendChild(code3)
     }
 
+    // Add event listeners to the alignments
     var alignments = document.getElementsByClassName('selectable');
     for (var i = 0; i < alignments.length; i++) {
         alignments[i].addEventListener('click', highlightMatrix);
@@ -190,6 +316,7 @@ function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
 };
 
 
+// Highlight the selected alignment in the matrix element
 function highlightMatrix() {
     // Get the path that was clicked
     var alignment = this.classList;
@@ -228,10 +355,12 @@ function highlightMatrix() {
 }
 
 
+// Generate the matrix element
 function buildMatrixEl(seq1, seq2, matrix, allPaths) {
     // Reset the matrix element
     matrixContainer = document.getElementById('matrix-container');
     matrixContainer.innerHTML = '';
+
     // Fill in the matrix element
     for (var i = 0; i < seq1.length + 2; i++) {
         var matrixRow = document.createElement('div');
@@ -263,26 +392,9 @@ function buildMatrixEl(seq1, seq2, matrix, allPaths) {
         }
     }
 
+    // Variables for dynamically adjusting the matrix in CSS
     var columns = seq1.length + 2;
     var rows = seq2.length + 2;
     document.documentElement.style.setProperty('--colNumMatrix', columns);
     document.documentElement.style.setProperty('--rowNumMatrix', rows);
-};
-
-
-function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
-    seq1 = Array.from(seq1);
-    seq2 = Array.from(seq2);
-
-    // Initialize an empty matrix
-    var scoreMatrix = [...Array(seq1.length + 1)].map(e => Array(seq2.length + 1));
-
-    // Fill in the first row and column with the appropriate values
-    scoreMatrix[0][0] = 0;
-    for (var i = 1; i < seq1.length + 1; i++) {
-        scoreMatrix[i][0] = gap * i
-    };
-    for (var i = 1; i < seq2.length + 1; i++) {
-        scoreMatrix[0][i] = gap * i
-    };
 };

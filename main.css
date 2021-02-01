@@ -31,7 +31,6 @@ h3 {
 
 .alignments {
     grid-area: alignments;
-    border-style: groove;
     padding-left: 15px;
     clear: left;
     float: left;
@@ -71,8 +70,8 @@ h3 {
 
 .matrix-container {
     display: grid;
-    grid-template-columns: repeat(var(--colNumMatrix), 25px);
-    grid-template-rows: repeat(var(--rowNumMatrix), 25px);
+    grid-template-columns: repeat(var(--colNumMatrix), 35px);
+    grid-template-rows: repeat(var(--rowNumMatrix), 35px);
     background-color: #ffffff;
     padding-bottom: 30px;
 }
