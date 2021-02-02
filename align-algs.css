@@ -1,7 +1,7 @@
 .container {
     display: grid;
     grid-template-columns: 230px 325px;
-    grid-template-rows: 380px 1fr;
+    grid-template-rows: 380px 1fr 1fr;
     grid-gap: 20px;
     grid-template-areas:
         "input-form alignments"
@@ -14,12 +14,13 @@
 
 h1 {
     text-align: center;
+    margin-bottom: 0px;
 }
 
 h3 {
     text-align: center;
     margin-top: 0px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .matrix h3 {
@@ -34,11 +35,17 @@ h3 {
 
 .alignments {
     grid-area: alignments;
-    padding-left: 15px;
-    clear: left;
-    float: left;
-    max-height: 350px;
-    max-width: 275px;
+}
+
+.alignments p {
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 15px;
+}
+
+.results_window {
+    max-height: 300px;
+    max-width: 300px;
     overflow-y: scroll;
     vertical-align: top;
 }
@@ -48,10 +55,6 @@ h3 {
     padding: 5px;
     font-size: 20px;
     text-align: center;
-}
-
-.alignments p {
-    vertical-align: bottom;
 }
 
 .selectable {
@@ -69,6 +72,7 @@ h3 {
 
 .matrix {
     grid-area: matrix;
+    padding-right: 30px;
 }
 
 .matrix-container {
@@ -96,11 +100,11 @@ h3 {
 }
 
 @supports (display: grid) {
-    @media only screen and (max-width:560px) {
+    @media only screen and (max-width:600px) {
         .container {
             display: grid;
             grid-template-columns: 325px;
-            grid-template-rows: 380px 350px 1fr;
+            grid-template-rows: 380px auto 1fr 1fr;
             grid-gap: 20px;
             grid-template-areas:
                 "input-form"

@@ -5,9 +5,13 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
     <title>Tyler Hill - Local Alignment Algorithms</title>
 
-    <link rel="stylesheet" href="align-algs.css">
+    <link rel="stylesheet" href="assets/css/align-algs.css">
 
 </head>
 
@@ -51,12 +55,15 @@
 
         <div class="alignments">
             <h3>Aligned Sequences</h3>
-            <table class="results">
-                <tbody id="alignments">
-
-                </tbody>
-            </table>
             <p>Select alignment to see its matrix path</p>
+
+            <div class="results_window">
+                <table class="results">
+                    <tbody id="alignments">
+
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="matrix">
@@ -64,11 +71,9 @@
             <div class="matrix-container" id="matrix-container"></div>
         </div>
 
-        <div class="algo-explanations">
-
-        </div>
+        <div class="algo-explanations"></div>
 
     </div>
 
-    <script src="align-algs.js"></script>
+    <script src="assets/js/align-algs.js"></script>
 </body>
