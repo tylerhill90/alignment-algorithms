@@ -64,10 +64,52 @@
 
         <div class="matrix">
             <h3>Matrix Results</h3>
-            <div class="matrix-container" id="matrix-container"></div>
+            <div class="matrix-container" id="matrix-container">
+                <p>Click "Align Sequences" to see the scoring matrix.</p>
+            </div>
         </div>
 
-        <div class="algo-explanations"></div>
+        <div class="algo-explain">
+            <div id="smith-waterman">
+                <h3>Smith-Waterman Algorithm</h4>
+                    <p>
+                        This alignment algorithm performs local sequence alignment.
+                        Locally aligned sequences optimize for regions of higher
+                        sequence similarity over trying to align the entirety of both
+                        sequences.<br>
+                        <br>
+                        The general algorithm strategy is as follows:
+                    <ol>
+                        <li>Determine the scoring scheme.</li>
+                        <li>Construct the scoring matrix and initialize the first row and column with 0's.</li>
+                        <li>Calculate the rest of the scoring matrix.</li>
+                        <li>Traceback recursively from the highest score(s) in the matrix until a score of zero is reached.</li>
+                    </ol>
+                    Further details can be found
+                    <a href="https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm">here</a>.
+                    </p>
+            </div>
+
+            <div id="needleman-wunsch">
+                <h3>Needleman-Wunsch Algorithm</h3>
+                <p>
+                    This alignment algorithm performs global sequence alignment.
+                    Globally aligned sequences align the entirety of both sequences
+                    no matter the amount of gap between characters.<br>
+                    <br>
+                    The general algorithm startegy is as follows:
+                <ol>
+                    <li>Determine the scoring scheme.</li>
+                    <li>Construct the scoring matrix and initialize the first row and column with the gap score times the respective sequence position.</li>
+                    <li>Calculate the rest of the scoring matrix.</li>
+                    <li>Traceback recursively from the bottom right corner of the matrix to the top left.</li>
+                </ol>
+                Further details can be found
+                <a href="https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm">here</a>.
+                </p>
+                </p>
+            </div>
+        </div>
 
     </div>
 

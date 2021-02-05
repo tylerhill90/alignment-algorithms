@@ -12,10 +12,13 @@ seqAlignForm.onsubmit = async (e) => {
     var gap = parseInt(formData.get('gap'));
     // Run the algorithm selected
     if (document.getElementById('sw').checked) {
+        var alg = 'sw';
         smithWaterman(seq1, seq2, match, mismatch, gap);
     } else {
+        var alg = 'nw';
         needlemanWunsch(seq1, seq2, match, mismatch, gap);
     }
+    displayAlgInfo(alg);
 };
 
 
@@ -245,8 +248,6 @@ function traceBack(paths, matrix) {
 function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
     var results = new Array();
 
-    console.log(matrix)
-
     // Create formatted strings for each alignment from its path in the matrix
     for (var z = 0; z < allPaths.length; z++) {
         var seq1Results = new Array();
@@ -254,7 +255,6 @@ function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
         var seq2Results = new Array();
 
         var path = allPaths[z]
-        console.log(path)
         for (var i = 1; i < path.length; i++) {
             if (path[i][0] === 0 && path[i][1] === 0) {
                 break;
@@ -262,7 +262,6 @@ function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
             var x = path[i - 1][0] - path[i][0];
             var y = path[i - 1][1] - path[i][1];
             var pointer = [x, y];
-            console.log(pointer)
 
             if (pointer[0] === -1 && pointer[1] === -1) {
                 if (seq1[path[i][0] - 1] == seq2[path[i][1] - 1]) { //Match
@@ -398,4 +397,19 @@ function buildMatrixEl(seq1, seq2, matrix, allPaths) {
     var rows = seq2.length + 2;
     document.documentElement.style.setProperty('--colNumMatrix', columns);
     document.documentElement.style.setProperty('--rowNumMatrix', rows);
+};
+
+
+// Generate the algorithm explanation element
+function displayAlgInfo(alg) {
+    if (alg === 'sw') {
+        document.getElementById('smith-waterman').style.display = 'block';
+        document.getElementById('needleman-wunsch').style.display = 'none';
+    } else if (alg == 'nw') {
+        document.getElementById('smith-waterman').style.display = 'none';
+        document.getElementById('needleman-wunsch').style.display = 'block';
+    } else {
+        document.getElementById('smith-waterman').style.display = 'none';
+        document.getElementById('needleman-wunsch').style.display = 'none';
+    }
 };

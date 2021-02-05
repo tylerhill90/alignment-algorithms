@@ -1,12 +1,12 @@
 .container {
     display: grid;
     grid-template-columns: 230px 325px;
-    grid-template-rows: 380px 1fr 1fr;
-    grid-gap: 20px;
+    grid-template-rows: 380px auto;
+    grid-row-gap: 20px;
     grid-template-areas:
         "input-form alignments"
         "matrix matrix"
-        "algo-explanation algo-explanation";
+        "algo-explain algo-explain";
     background-color: #ffffff;
     padding: 30px;
     justify-content: center;
@@ -25,7 +25,6 @@ h3 {
 
 .matrix h3 {
     text-align: left;
-    margin-top: 0px;
     margin-bottom: 5px;
 }
 
@@ -72,21 +71,18 @@ h3 {
 
 .matrix {
     grid-area: matrix;
-    padding-right: 30px;
 }
 
 .matrix-container {
     display: grid;
-    grid-template-columns: repeat(var(--colNumMatrix), 35px);
-    grid-template-rows: repeat(var(--rowNumMatrix), 35px);
+    grid-template-columns: repeat(var(--colNumMatrix), minmax(30px, auto));
+    grid-template-rows: repeat(var(--rowNumMatrix), auto);
     background-color: #ffffff;
-    padding-bottom: 30px;
 }
 
 .seq-char {
     text-align: center;
-    padding: 3px;
-    border: 1px solid rgb(255, 255, 255);
+    padding: 4px;
 }
 
 .score {
@@ -95,25 +91,48 @@ h3 {
     border: 1px solid rgb(0, 0, 0);
 }
 
-.algo-explaination {
-    grid-area: algo-explanation;
+.algo-explain {
+    grid-area: algo-explain;
+    padding: 30px;
+}
+
+#smith-waterman {
+    display: none;
+}
+
+#needleman-wunsch {
+    display: none;
 }
 
 @supports (display: grid) {
     @media only screen and (max-width:600px) {
         .container {
             display: grid;
-            grid-template-columns: 325px;
-            grid-template-rows: 380px auto 1fr 1fr;
-            grid-gap: 20px;
+            grid-template-columns: minmax(350px, auto);
+            grid-template-rows: auto auto auto auto;
+            grid-row-gap: 20px;
             grid-template-areas:
                 "input-form"
                 "alignments"
                 "matrix"
-                "algo-explanation";
+                "algo-explain";
             background-color: #ffffff;
             padding: 30px;
-            justify-content: center;
+            justify-items: center;
+        }
+
+        .matrix {
+            grid-area: matrix;
+            justify-self: start;
+        }
+
+        .matrix h3 {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .matrix p {
+            text-align: center;
         }
     }
 }
