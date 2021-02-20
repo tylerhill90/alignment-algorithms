@@ -17,15 +17,16 @@
 
 <body>
     <h1>Visualizing Sequence Alignments</h1>
+    <p id="note">For display purposes the sequence character limit is capped at 15.</p>
     <div class="container">
 
         <div class="input-form">
 
             <form autocomplete="off" id="seqAlignForm">
                 <label for="seq1"><strong>First Sequence</strong></label><br>
-                <input type="text" name="seq1" value="AATCG" maxlength="20" required><br><br>
+                <input type="text" name="seq1" value="AATCG" maxlength="15" required><br><br>
                 <label for="seq2"><strong>Second Sequence</strong></label><br>
-                <input type="text" name="seq2" value="AACG" maxlength="20" required><br>
+                <input type="text" name="seq2" value="AACG" maxlength="15" required><br>
                 <br>
                 <label><strong>Algorithm</strong></label><br>
                 <input type="radio" id="sw" name="algorithm" value="Smith-Waterman" checked>
@@ -35,13 +36,13 @@
                 <br>
                 <label><strong>Scoring Schema</strong></label><br>
                 <label>Match</label><br>
-                <input type="range" id="scoring match" name="match" min="1" max="10" value="1" step="1"
+                <input type="range" id="scoring match" name="match" min="1" max="5" value="1" step="1"
                     onchange="this.nextElementSibling.value = this.value"><output>1</output><br>
                 <label>Mismatch</label><br>
-                <input type="range" id="scoring mismatch" name="mismatch" min="-10" max="-1" value="-1" step="1"
+                <input type="range" id="scoring mismatch" name="mismatch" min="-5" max="-1" value="-1" step="1"
                     onchange="this.nextElementSibling.value = this.value"><output>-1</output><br>
                 <label>Gap</label><br>
-                <input type="range" id="scoring gap" name="gap" min="-10" max="-1" value="-2" step="1"
+                <input type="range" id="scoring gap" name="gap" min="-5" max="-1" value="-2" step="1"
                     onchange="this.nextElementSibling.value = this.value"><output>-2</output><br>
                 <br>
                 <button>Align Sequences</button>
@@ -81,12 +82,66 @@
                         The general algorithm strategy is as follows:
                     <ol>
                         <li>Determine the scoring scheme.</li>
-                        <li>Construct the scoring matrix and initialize the first row and column with 0's.</li>
-                        <li>Calculate the rest of the scoring matrix.</li>
-                        <li>Traceback recursively from the highest score(s) in the matrix until a score of zero is reached.</li>
+                        <li>Construct the scoring matrix. Initialize the first
+                            row and column with 0's.
+                        </li>
+                        <li>Calculate the rest of the scoring matrix.
+
+                        </li>
+                        <li>Traceback recursively from the highest score(s) in
+                            the matrix until a score of zero is
+                            reached, following the pointer(s) of each cell
+                            calculated in the previous step.
+                        </li>
+                        <li>
+                            Use the path(s) through the matrix to construct a
+                            formatted alignment.
+                        </li>
                     </ol>
-                    Further details can be found
-                    <a href="https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm">here</a>.
+                    </ol>
+                    Details of step 3:<br>
+                    To compute the score of each individual cell
+                    we actually compute three separate scores and take the max
+                    or zero, whatever is higher.
+                    To compute these scores we do the following:
+                    <ol>
+                        <li>
+                            Compare the i<sup>th</sup> character from the first
+                            sequence and the j<sup>th</sup> character from the
+                            second sequence based on the position in the matrix we
+                            are determining the score of. If they match note the
+                            match score and if they don't note the
+                            mismatch score. Now look to the cell diagonally up and
+                            left and add its score to the match/mismatch score you
+                            noted. Store this result.
+                        </li>
+                        <li>
+                            Look to the cell to the left. Add its score to
+                            the gap score since moving laterally in the matrix
+                            constitutes a gap in the alignment. Store the result.
+                        </li>
+                        <li>
+                            Look to the cell above. Add its score to the gap
+                            score since moving vertically also constitutes a gap in
+                            the alignment. Store this result.
+                        </li>
+                        <li>
+                            Take the max score of the three results computed above.
+                            If the max is less than 0 we take a score of
+                            0 instead.
+                        </li>
+                        <li>
+                            Lastly, we note where the filled in score came from with
+                            pointers to that cell (left, up, or diagonally left). If
+                            there was a tie in the max score then we store all the
+                            relevant pointers. These pointers allow for recursive
+                            traceback.
+                        </li>
+                    </ol>
+
+                    Further details can be found on Wikipedia
+                    <a href="https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm" target="_blank"
+                        rel="noopener noreferrer">here</a>.
                     </p>
             </div>
 
@@ -100,12 +155,63 @@
                     The general algorithm startegy is as follows:
                 <ol>
                     <li>Determine the scoring scheme.</li>
-                    <li>Construct the scoring matrix and initialize the first row and column with the gap score times the respective sequence position.</li>
+                    <li>
+                        Construct the scoring matrix. Initialize the first row
+                        and column where the position in the
+                        row or column is equal to the gap score times
+                        the respective sequence position.
+                    </li>
                     <li>Calculate the rest of the scoring matrix.</li>
-                    <li>Traceback recursively from the bottom right corner of the matrix to the top left.</li>
+                    <li>
+                        Traceback recursively from the bottom right corner of
+                        the matrix to the top left, following the pointer(s) of
+                        each cell calculated in the previous step.
+                    </li>
+                    <li>
+                        Use the path(s) through the matrix to construct a
+                        formatted alignment.
+                    </li>
                 </ol>
-                Further details can be found
-                <a href="https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm">here</a>.
+                Details of step 3:<br>
+                To compute the score of each individual cell
+                we actually compute three separate scores and take the max. To
+                compute these scores we do the following:
+                <ol>
+                    <li>
+                        Compare the i<sup>th</sup> character from the first
+                        sequence and the j<sup>th</sup> character from the
+                        second sequence based on the position in the matrix we
+                        are determining the score of. If they match note the
+                        match score and if they don't note the
+                        mismatch score. Now look to the cell diagonally up and
+                        left and add its score to the match/mismatch score you
+                        noted. Store this result.
+                    </li>
+                    <li>
+                        Look to the cell to the left. Add its score to
+                        the gap score since moving laterally in the matrix
+                        constitutes a gap in the alignment. Store the result.
+                    </li>
+                    <li>
+                        Look to the cell above. Add its score to the gap
+                        score since moving vertically also constitutes a gap in
+                        the alignment. Store this result.
+                    </li>
+                    <li>
+                        Take the max score of the three results computed above.
+                    </li>
+                    <li>
+                        Lastly, we note where the score came from with
+                        pointers to that cell (left, up, or diagonally left). If
+                        there was a tie in the max score then we store all the
+                        relevant pointers. These pointers allow for recursive
+                        traceback.
+                    </li>
+
+                </ol>
+                Further details can be found on Wikipedia
+                <a href="https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm" target="_blank"
+                    rel="noopener noreferrer">here</a>.
                 </p>
                 </p>
             </div>

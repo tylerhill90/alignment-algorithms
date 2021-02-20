@@ -113,25 +113,25 @@ function smithWaterman(seq1, seq2, match, mismatch, gap) {
 
     // Trace-back
     // Find all possible paths from max score coordinate(s)
-    allPaths = new Array();
+    swPaths = new Array();
     for (var x = 0; x < coords.length; x++) {
         // Trace back from the highest score until a score of 0
-        var start = coords[x];
-        var path = [start]
-        var i = start[0];
-        var j = start[1];
-        while (matrix[i][j].score !== 0) {
-            var temp = matrix[i][j].pointers[0];
-            i = temp[0] + i;
-            j = temp[1] + j;
-            path.splice(0, 0, [i, j]);
+        var start = new Array(coords[x]);
+        allPaths = new Array();
+        traceBack(start, matrix, 'sw');
+        // Reverse each path in allPaths and push it to swPaths
+        for (var y = 0; y < allPaths.length; y++) {
+            allPaths[y] = allPaths[y].reverse()
+            swPaths.push(allPaths[y])
         }
-        allPaths.push(path)
     }
 
+    // Store paths globally
+    allPaths = swPaths;
+
     // Dynamically generate HTML output
-    buildMatrixEl(seq1, seq2, matrix, allPaths);
-    buildAlignmentsEl(seq1, seq2, matrix, allPaths);
+    buildMatrixEl(seq1, seq2, matrix, swPaths);
+    buildAlignmentsEl(seq1, seq2, swPaths);
 };
 
 
@@ -194,7 +194,7 @@ function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
     // Trace-back from the bottom right to the top left of the matrix
     var start = new Array([seq1.length, seq2.length])
     allPaths = new Array()
-    traceBack(start, matrix);
+    traceBack(start, matrix, 'nw');
     // Reverse each path in allPaths
     for (var x = 0; x < allPaths.length; x++) {
         allPaths[x] = allPaths[x].reverse()
@@ -202,28 +202,40 @@ function needlemanWunsch(seq1, seq2, match, mismatch, gap) {
 
     // Dynamically generate HTML output
     buildMatrixEl(seq1, seq2, matrix, allPaths);
-    buildAlignmentsEl(seq1, seq2, matrix, allPaths);
+    buildAlignmentsEl(seq1, seq2, allPaths);
 };
 
 
 // Recursively trace-back through the matrix
-function traceBack(paths, matrix) {
+function traceBack(paths, matrix, alg) {
     var i = paths[paths.length - 1][0];
     var j = paths[paths.length - 1][1];
     var iNext = i;
     var jNext = j;
     var pointers = matrix[i][j].pointers;
 
-    // Base case when trace-back reaches the top left of matrix
-    if (i === 0 && j === 0) {
-        return allPaths.push(paths)
+    console.log(alg)
+
+    // Base cases
+    // Smith-Waterman
+    if (alg === 'sw') {     // Trace-back reaches a 0 score
+        if (matrix[i][j].score === 0) {
+            console.log(i, j)
+            return allPaths.push(paths);
+        }
+    } else {
+        // Trace-back reaches top left of matrix
+        if (i === 0 && j === 0) {
+            return allPaths.push(paths);
+        }
     }
 
+    // Recurse through matrix
     if (pointers.length === 1) {
         iNext += pointers[0][0];
         jNext += pointers[0][1];
         paths[paths.length] = [iNext, jNext];
-        traceBack(paths, matrix);
+        traceBack(paths, matrix, alg);
     } else {
         var pathLen = paths.length
         for (var x = 0; x < pointers.length; x++) {
@@ -233,11 +245,11 @@ function traceBack(paths, matrix) {
             jNext += pointers[x][1];
             if (x === 0) {
                 paths[paths.length] = [iNext, jNext];
-                traceBack(paths, matrix);
+                traceBack(paths, matrix, alg);
             } else {
                 paths = allPaths[allPaths.length - 1].slice(0, pathLen);
                 paths[paths.length] = [iNext, jNext];
-                traceBack(paths, matrix);
+                traceBack(paths, matrix, alg);
             }
         }
     }
@@ -245,16 +257,16 @@ function traceBack(paths, matrix) {
 
 
 // Generate the alignments element
-function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
+function buildAlignmentsEl(seq1, seq2, buildPaths) {
     var results = new Array();
 
     // Create formatted strings for each alignment from its path in the matrix
-    for (var z = 0; z < allPaths.length; z++) {
+    for (var z = 0; z < buildPaths.length; z++) {
         var seq1Results = new Array();
         var alignSymbols = new Array();
         var seq2Results = new Array();
 
-        var path = allPaths[z]
+        var path = buildPaths[z]
         for (var i = 1; i < path.length; i++) {
             if (path[i][0] === 0 && path[i][1] === 0) {
                 break;
@@ -290,7 +302,7 @@ function buildAlignmentsEl(seq1, seq2, matrix, allPaths) {
     var alignmentsResults = document.getElementById('alignments');
     alignmentsResults.innerHTML = '';
     // Fill in the alignments element
-    for (var x = 0; x < allPaths.length; x++) {
+    for (var x = 0; x < buildPaths.length; x++) {
         var tr = document.createElement('tr');
         alignmentsResults.appendChild(tr);
         var td = document.createElement('td');
@@ -356,7 +368,7 @@ function highlightMatrix() {
 
 
 // Generate the matrix element
-function buildMatrixEl(seq1, seq2, matrix, allPaths) {
+function buildMatrixEl(seq1, seq2, matrix) {
     // Reset the matrix element
     matrixContainer = document.getElementById('matrix-container');
     matrixContainer.innerHTML = '';

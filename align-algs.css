@@ -1,3 +1,7 @@
+#note {
+    text-align: center;
+}
+
 .container {
     display: grid;
     grid-template-columns: 230px 325px;
@@ -87,6 +91,7 @@ h3 {
 
 .score {
     text-align: center;
+    font-size: 12px;
     padding: 3px;
     border: 1px solid rgb(0, 0, 0);
 }
